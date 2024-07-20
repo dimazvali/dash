@@ -34,7 +34,6 @@ const {
 const {
     sendMessage2,
     getUser,
-    greeting
 } = require('./methods.js');
 
 
