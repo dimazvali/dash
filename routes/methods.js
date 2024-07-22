@@ -17,8 +17,6 @@ function sendMessage2(m, ep, channel, messages, extra) {
         
         if(messages && telres.data.ok){
 
-            devlog(telres.data)
-            
             let toLog =  {
                 createdAt:  new Date(),
                 user:       +m.chat_id,
@@ -32,11 +30,13 @@ function sendMessage2(m, ep, channel, messages, extra) {
 
             devlog(toLog)
             
-            messages.add(toLog).then(()=>devlog(`logged ${(toLog.text || '').slice(0,10)} to ${toLog.user}`)).catch(err=>{
-                alertMe({
-                    text: `Ошибка логирования: ${err.message}`
-                })
-            })
+            // ЗДЕСЬ ДОЛЖНО БЫТЬ ЛОГИРОВАНИЕ СООБЩЕНИЕ И ОБРАТНАЯ СВЯЗЬ АДМИНАМ
+            
+            // messages.add(toLog).then(()=>devlog(`logged ${(toLog.text || '').slice(0,10)} to ${toLog.user}`)).catch(err=>{
+            //     alertMe({
+            //         text: `Ошибка логирования: ${err.message}`
+            //     })
+            // })
         }
         
         return telres.data;

@@ -50,27 +50,27 @@ const {
 } = require('firebase-admin/firestore');
 
 
-let gcp = initializeApp({
-    credential: cert({
-        "type":             "service_account",
-        "project_id":       "dimazvalimisc",
-        "private_key_id":   "5eb5025afc0fe53b63f518ba071f89e7b7ce03af",
-        "private_key":      process.env.gcpKey.replace(/\\n/g, '\n'),
-        "client_email":     "firebase-adminsdk-4iwd4@dimazvalimisc.iam.gserviceaccount.com",
-        "client_id":        "110523994931477712119",
-        "auth_uri":         "https://accounts.google.com/o/oauth2/auth",
-        "token_uri":        "https://oauth2.googleapis.com/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-4iwd4%40dimazvalimisc.iam.gserviceaccount.com"
-      }),
-    databaseURL: "https://dimazvalimisc-default-rtdb.europe-west1.firebasedatabase.app"
-}, host);
+// let gcp = initializeApp({
+//     credential: cert({
+//         "type":             "service_account",
+//         "project_id":       "dimazvalimisc",
+//         "private_key_id":   "5eb5025afc0fe53b63f518ba071f89e7b7ce03af",
+//         "private_key":      process.env.gcpKey.replace(/\\n/g, '\n'),
+//         "client_email":     "firebase-adminsdk-4iwd4@dimazvalimisc.iam.gserviceaccount.com",
+//         "client_id":        "110523994931477712119",
+//         "auth_uri":         "https://accounts.google.com/o/oauth2/auth",
+//         "token_uri":        "https://oauth2.googleapis.com/token",
+//         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+//         "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-4iwd4%40dimazvalimisc.iam.gserviceaccount.com"
+//       }),
+//     databaseURL: "https://dimazvalimisc-default-rtdb.europe-west1.firebasedatabase.app"
+// }, host);
 
-let fb =    getFirestore(gcp);
+// let fb =    getFirestore(gcp);
 
-let udb =                   fb.collection(`${host}Users`);
-let messages =              fb.collection(`${host}UsersMessages`);
-let logs =                  fb.collection(`${host}Logs`);
+// let udb =                   fb.collection(`${host}Users`);
+// let messages =              fb.collection(`${host}UsersMessages`);
+// let logs =                  fb.collection(`${host}Logs`);
 
 setTimeout(function () {
     axios.get(`https://api.telegram.org/bot${token}/setWebHook?url=${ngrok}/${host}/hook`).then(() => {
@@ -82,21 +82,24 @@ setTimeout(function () {
 
 function log(o) {
 
-    o.createdAt = new Date()
+    // ЗДЕСЬ ДОЛЖНО БЫТЬ ЛОГИРОВАНИЕ
 
-    logs.add(o).then(r => {
+    // o.createdAt = new Date()
 
-        if (!o.silent) {
-            alertAdmins({
-                text: o.text
-            })
-        }
-    })
+    // logs.add(o).then(r => {
+
+    //     if (!o.silent) {
+    //         alertAdmins({
+    //             text: o.text
+    //         })
+    //     }
+    // })
 }
 
 
-async function registerUser(u) {
 
+async function registerUser(u) {
+    // ЭТО РЕГИСТРАЦИЯ ПОЛЬЗОВАТЕЛЕЙ
     u.createdAt = new Date();
     u.active = true;
     u.blocked = false;
@@ -137,14 +140,16 @@ function alertAdmins(mess) {
 
     if(mess.reply_markup) message.reply_markup = mess.reply_markup
 
-    udb.where(`admin`, '==', true).get().then(admins => {
-        admins = handleQuery(admins)
-        // if(process.env.develop) admins = admins.filter(a=>+a.id == dimazvali)
-        admins.forEach(a => {
-            message.chat_id = a.id
-            if (mess.type != 'stopLog' || !a.stopLog) sendMessage2(message, false, token, messages)
-        })
-    })
+    // ЗДЕСЬ ДОЛЖНЫ БЫТЬ УВЕДОМЛЕНИЯ АДМИНАМ
+
+    // udb.where(`admin`, '==', true).get().then(admins => {
+    //     admins = handleQuery(admins)
+    //     // if(process.env.develop) admins = admins.filter(a=>+a.id == dimazvali)
+    //     admins.forEach(a => {
+    //         message.chat_id = a.id
+    //         if (mess.type != 'stopLog' || !a.stopLog) sendMessage2(message, false, token, messages)
+    //     })
+    // })
 }
 
 
@@ -168,32 +173,40 @@ router.post(`/authRoom`,(req,res)=>{
     if(req.body.hash == hmac){
 
         req.body.user = JSON.parse(req.body.user);
-        
-        getUser(req.body.user.id,udb).then(async u=>{
-        
-            if(u && u.blocked) return res.sendStatus(403)
 
-            if(!u) {
-                u = req.body.user;
-                await registerUser(req.body.user)
-            }
-
-            devlog(u);
-
-            udb.doc(req.body.user.id.toString()).update({
-                entries:    FieldValue.increment(+1),
-                recent:     new Date()
-            })
-            res.json({
-                room:   req.query.room,
-                name:   encodeURIComponent(unamDash(u)),
-                photo:  u.photo_url || 'https://i.imgur.com/Wd022EM.jpeg'
-            })
-              
-        }).catch(err=>{
-            res.status(400).send(err.message)
-            console.log(err)
+        res.json({
+            room:   req.query.room,
+            name:   encodeURIComponent(unamDash(req.body.user)),
+            photo:  u.photo_url || 'https://i.imgur.com/Wd022EM.jpeg'
         })
+
+        // ЗДЕСЬ ДОЛЖНА БЫТЬ ПРОВЕРКА ПОЛЬЗОВАТЕЛЯ
+        
+        // getUser(req.body.user.id,udb).then(async u=>{
+        
+        //     if(u && u.blocked) return res.sendStatus(403)
+
+        //     if(!u) {
+        //         u = req.body.user;
+        //         await registerUser(req.body.user)
+        //     }
+
+        //     devlog(u);
+
+        //     udb.doc(req.body.user.id.toString()).update({
+        //         entries:    FieldValue.increment(+1),
+        //         recent:     new Date()
+        //     })
+        //     res.json({
+        //         room:   req.query.room,
+        //         name:   encodeURIComponent(unamDash(u)),
+        //         photo:  u.photo_url || 'https://i.imgur.com/Wd022EM.jpeg'
+        //     })
+              
+        // }).catch(err=>{
+        //     res.status(400).send(err.message)
+        //     console.log(err)
+        // })
     } else {
         res.sendStatus(403)
     }
@@ -220,87 +233,91 @@ router.post(`/hook`, (req, res) => {
 
     let user = {};
 
-    if (req.body.my_chat_member) {
-        if (req.body.my_chat_member.new_chat_member.status == 'kicked') {
+    // ЗДЕСЬ ДОЛЖНА БЫТЬ ПРОВЕРКА СТАТУСА ПОЛЬЗОВАТЕЛЯ
 
-            udb.doc(req.body.my_chat_member.chat.id.toString()).update({
-                active: false,
-                stopped: true
-            }).then(s => {
-                udb.doc(req.body.my_chat_member.chat.id.toString()).get().then(u => {
+    // if (req.body.my_chat_member) {
+    //     if (req.body.my_chat_member.new_chat_member.status == 'kicked') {
 
-                    u = handleDoc(u)
+    //         udb.doc(req.body.my_chat_member.chat.id.toString()).update({
+    //             active: false,
+    //             stopped: true
+    //         }).then(s => {
+    //             udb.doc(req.body.my_chat_member.chat.id.toString()).get().then(u => {
 
-                    log({
-                        silent: true,
-                        text: `${uname(u,u.id)} blocks the bot`,
-                        user: +u.id
-                    })
-                })
+    //                 u = handleDoc(u)
 
-            }).catch(err => {
-                console.log(err)
-            })
-        }
-    }
-    if (req.body.message && req.body.message.from) {
-        user = req.body.message.from;
+    //                 log({
+    //                     silent: true,
+    //                     text: `${uname(u,u.id)} blocks the bot`,
+    //                     user: +u.id
+    //                 })
+    //             })
 
-        getUser(user.id, udb).then(u => {
+    //         }).catch(err => {
+    //             console.log(err)
+    //         })
+    //     }
+    // }
+    // ЗДЕСЬ ДОЛЖНО БЫТЬ ЛОГИРОВАНИЕ СООБЩЕНИЙ / РЕГИСТРАЦИЯ НОВЫХ ЮЗЕРОВ
+
+    // if (req.body.message && req.body.message.from) {
+    //     user = req.body.message.from;
+
+    //     getUser(user.id, udb).then(u => {
             
-            if (!u) return registerUser(user)
+    //         if (!u) return registerUser(user)
 
                 
-            if (!u.active) return udb.doc(user.id.toString()).update({
-                active: true,
-                stopped: null
-            }).then(s => {
-                log({
-                    silent: true,
-                    user: +user.id,
-                    text: `user id ${user.id} comes back`
-                })
-            })
+    //         if (!u.active) return udb.doc(user.id.toString()).update({
+    //             active: true,
+    //             stopped: null
+    //         }).then(s => {
+    //             log({
+    //                 silent: true,
+    //                 user: +user.id,
+    //                 text: `user id ${user.id} comes back`
+    //             })
+    //         })
 
-            if (req.body.message.photo && !req.body.message.chat.is_forum) {
-                udb.where('admin','==',true).get().then(col=>{
-                    handleQuery(col).forEach(a=>{
-                            sendMessage2({
-                                chat_id:    a.id,
-                                caption:    `pics from ${uname(u,u.id)}`,
-                                photo:      req.body.message.photo[0].file_id
-                        }, 'sendPhoto', token, messages)
-                    })
-                })
-            }
+    //         if (req.body.message.photo && !req.body.message.chat.is_forum) {
+    //             udb.where('admin','==',true).get().then(col=>{
+    //                 handleQuery(col).forEach(a=>{
+    //                         sendMessage2({
+    //                             chat_id:    a.id,
+    //                             caption:    `pics from ${uname(u,u.id)}`,
+    //                             photo:      req.body.message.photo[0].file_id
+    //                     }, 'sendPhoto', token, messages)
+    //                 })
+    //             })
+    //         }
 
-            if (req.body.message.text) {
-                if(!req.body.message.chat.is_forum) messages.add({
-                    user: user.id,
-                    text: req.body.message.text || null,
-                    createdAt: new Date(),
-                    isReply: false
-                })
-            }
+    //         if (req.body.message.text) {
+    //             if(!req.body.message.chat.is_forum) messages.add({
+    //                 user: user.id,
+    //                 text: req.body.message.text || null,
+    //                 createdAt: new Date(),
+    //                 isReply: false
+    //             })
+    //         }
 
-            if (req.body.message.text && !req.body.message.chat.is_forum) {
+    //         if (req.body.message.text && !req.body.message.chat.is_forum) {
                 
                 
-                if (req.body.message.text == `/start`) {
-                    return sendMessage2({
-                        chat_id:    user.id,
-                        parse_mode: `Markdown`,
-                        text:       `Hello, world!`,
-                    }, false, token, messages)
-                } else {
-                    return alertAdmins({
-                        text: `${uname(u,u.id)} says: ${req.body.message.text}`,
-                        user: user.id
-                    })
-                }
-            }
-        })
-    }
+    //             if (req.body.message.text == `/start`) {
+    //                 return sendMessage2({
+    //                     chat_id:    user.id,
+    //                     parse_mode: `Markdown`,
+    //                     text:       `Hello, world!`,
+    //                 }, false, token, messages)
+    //             } else {
+    //                 return alertAdmins({
+    //                     text: `${uname(u,u.id)} says: ${req.body.message.text}`,
+    //                     user: user.id
+    //                 })
+    //             }
+    //         }
+    //     })
+    // }
 
     if(req.body.inline_query){
         let q = req.body.inline_query
@@ -348,6 +365,7 @@ router.post(`/hook`, (req, res) => {
                     alertAdmins({
                         text: err.message
                     })
+
                     sendMessage2({
                         inline_query_id:q.id,
                         results: [{
